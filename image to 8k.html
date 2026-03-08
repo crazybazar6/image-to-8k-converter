@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Image Enhancer · Fix Quality, Keep Original Size</title>
+  <title>AI Image Enhancer · Quality Fix + Upscale to 4K/8K</title>
   <!-- SEO meta -->
-  <meta name="description" content="Fix blurry photos, remove noise, and enhance details without changing image dimensions. AI-powered quality improvement.">
-  <meta name="keywords" content="AI image enhancer, fix blurry photo, enhance image quality, noise reduction, keep original size">
+  <meta name="description" content="Fix blurry photos and upscale to HD, 4K, or 8K. Or keep original size and just enhance quality. AI-powered deblur, noise removal.">
+  <meta name="keywords" content="AI image enhancer, fix blurry photo, upscale to 4K, enhance image quality, 8K upscaler, HD converter">
   <!-- Schema markup -->
   <script type="application/ld+json">
   {
@@ -14,7 +14,7 @@
     "@type": "SoftwareApplication",
     "name": "AI Image Enhancer",
     "applicationCategory": "Multimedia",
-    "description": "Fix blurry photos and enhance quality without resizing. Removes noise and restores detail.",
+    "description": "Fix blurry photos and upscale to HD, 4K, 8K, or enhance quality at original size.",
     "offers": {"@type": "Offer","price": "0","priceCurrency": "USD"}
   }
   </script>
@@ -138,17 +138,37 @@
     }
     .chip.active i { color: white; }
 
-    /* Removed resolution selector - we keep original size */
-    .quality-badge {
-      background: #e0f2fe;
-      border-radius: 60px;
-      padding: 12px 28px;
-      font-weight: 600;
-      display: inline-block;
-      margin: 10px 0;
-      color: #0369a1;
+    /* Resolution selector (HD, 4K, 8K, or Original Size) */
+    .res-grid {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 20px 0;
     }
-    .quality-badge i { margin-right: 8px; }
+    .res-btn {
+      background: #f1f5f9;
+      padding: 12px 24px;
+      border-radius: 40px;
+      font-weight: 600;
+      border: 2px solid transparent;
+      cursor: pointer;
+    }
+    .res-btn.active {
+      background: #2563eb;
+      color: white;
+      border-color: #1e40af;
+    }
+    .res-btn.original-size {
+      background: #fef3c7;
+      color: #92400e;
+      border-color: #fbbf24;
+    }
+    .res-btn.original-size.active {
+      background: #f59e0b;
+      color: white;
+      border-color: #b45309;
+    }
 
     .enhance-btn {
       background: #0f172a;
@@ -163,7 +183,7 @@
       transition: 0.15s;
       box-shadow: 0 8px 20px #2563eb70;
       width: 100%;
-      max-width: 400px;
+      max-width: 500px;
       display: block;
       margin-left: auto;
       margin-right: auto;
@@ -316,8 +336,8 @@
     <div class="container nav-container">
       <div class="logo">pixel<span style="color:#0f172a;">up.ai</span></div>
       <div class="nav-links">
-        <a href="#">Home</a><a href="#">Image Enhancer</a><a href="#">Photo Upscaler</a><a href="#">Quality Fix</a>
-        <a href="#">Blog</a><a href="#">About</a><a href="#">Contact</a>
+        <a href="#">Home</a><a href="#">Image Enhancer</a><a href="#">Photo Upscaler</a><a href="#">4K Converter</a>
+        <a href="#">8K Upscaler</a><a href="#">Blog</a><a href="#">About</a><a href="#">Contact</a>
       </div>
       <div class="menu-toggle"><i class="fas fa-bars"></i></div>
     </div>
@@ -325,8 +345,8 @@
 
   <div class="container">
     <section class="hero">
-      <h1>Fix Image Quality · Keep Original Size</h1>
-      <p>Deblur · Sharpen · Remove Noise · Enhance Details — dimensions never change</p>
+      <h1>Fix Quality or Upscale to 4K/8K</h1>
+      <p>Deblur · Sharpen · Remove Noise · Then upscale to HD, 4K, 8K or keep original size</p>
       <div class="format-badge"><span>JPG</span><span>PNG</span><span>WEBP</span></div>
     </section>
 
@@ -340,12 +360,12 @@
       <div class="drag-area" id="dragDrop">
         <i class="fas fa-cloud-upload-alt"></i>
         <h3>Drag & drop any image</h3>
-        <p>or click to browse (we'll enhance quality, not resize)</p>
+        <p>or click to browse (we'll enhance quality first, then upscale if desired)</p>
       </div>
       <input type="file" id="fileInput" accept="image/*">
 
-      <div class="dimension-note">
-        <i class="fas fa-arrows-alt" style="color:#2563eb;"></i> Original dimensions preserved — only quality improves
+      <div class="dimension-note" id="dimensionDisplay">
+        <i class="fas fa-arrows-alt" style="color:#2563eb;"></i> Upload an image to see dimensions
       </div>
 
       <div class="tool-chips" id="toolChips">
@@ -357,12 +377,15 @@
         <span class="chip" data-tool="hdr"><i class="fas fa-sun"></i>HDR effect</span>
       </div>
 
-      <!-- Quality indicator instead of resolution selector -->
-      <div style="text-align: center; margin: 15px 0;">
-        <span class="quality-badge"><i class="fas fa-highlighter"></i> Enhancement Level: Maximum</span>
+      <!-- Resolution selector: HD, 4K, 8K, and ORIGINAL SIZE option -->
+      <div class="res-grid" id="resGrid">
+        <span class="res-btn" data-res="hd">HD (720p)</span>
+        <span class="res-btn active" data-res="4k">4K Ultra HD</span>
+        <span class="res-btn" data-res="8k">8K Ultra HD</span>
+        <span class="res-btn original-size" data-res="original">📏 Original Size (no upscale)</span>
       </div>
 
-      <button class="enhance-btn" id="enhanceBtn"><i class="fas fa-magic"></i> Enhance Quality (Keep Size)</button>
+      <button class="enhance-btn" id="enhanceBtn"><i class="fas fa-magic"></i> Enhance & Process</button>
 
       <div class="preview-row">
         <div class="preview-box">
@@ -378,7 +401,7 @@
             <i class="fas fa-image placeholder-icon" id="afterPlaceholder"></i>
             <img id="afterImage" src="#" alt="after" style="display:none;">
           </div>
-          <p><strong>AI Enhanced</strong> (same dimensions, sharper)</p>
+          <p><strong>AI Enhanced</strong> (quality fixed + upscaled if selected)</p>
           <div id="afterDimensions" style="font-size:0.8rem; color:#4b5563;"></div>
         </div>
       </div>
@@ -394,16 +417,17 @@
 
     <div class="pages-grid">
       <div class="page-card"><i class="fas fa-arrow-up"></i> Quality Enhancer</div>
-      <div class="page-card"><i class="fas fa-hd"></i> Photo Sharpener</div>
-      <div class="page-card"><i class="fas fa-microchip"></i> Noise Remover</div>
-      <div class="page-card"><i class="fas fa-pen"></i> Deblur Tool</div>
+      <div class="page-card"><i class="fas fa-hd"></i> HD Upscaler</div>
+      <div class="page-card"><i class="fas fa-microchip"></i> 4K Converter</div>
+      <div class="page-card"><i class="fas fa-pen"></i> 8K Upscaler</div>
+      <div class="page-card"><i class="fas fa-face-smile"></i> Face Restore</div>
     </div>
 
     <h2 style="font-size: 2rem; margin: 50px 0 20px;">📘 AI Image Blog</h2>
     <div class="blog-grid">
-      <div class="blog-card"><i class="fas fa-image"></i><h3>How to fix blurry photos without losing size</h3><p class="meta">keyword: "fix blurry photo"</p></div>
+      <div class="blog-card"><i class="fas fa-image"></i><h3>How to upscale blurry photos to 4K</h3><p class="meta">keyword: "upscale to 4K"</p></div>
       <div class="blog-card"><i class="fas fa-camera-retro"></i><h3>Best free AI image enhancers 2025</h3><p class="meta">keyword: "free AI image enhancer"</p></div>
-      <div class="blog-card"><i class="fas fa-blur"></i><h3>Remove noise and keep original resolution</h3><p class="meta">keyword: "AI noise reduction"</p></div>
+      <div class="blog-card"><i class="fas fa-blur"></i><h3>Fix blur and keep original size</h3><p class="meta">keyword: "fix blurry photo"</p></div>
     </div>
 
     <!-- Ad Unit Bottom -->
@@ -415,11 +439,11 @@
 
   <footer class="footer">
     <div class="container footer-grid">
-      <div><h4 style="color:white;">PixelUp.AI</h4>Quality enhancement, no resizing</div>
+      <div><h4 style="color:white;">PixelUp.AI</h4>Enhance + upscale to 4K/8K</div>
       <div><h4>Pages</h4><a href="#">About Us</a><a href="#">Contact</a><a href="#">Privacy Policy</a></div>
-      <div><h4>Tools</h4><a href="#">Image Enhancer</a><a href="#">Deblur Tool</a><a href="#">Noise Reduction</a></div>
+      <div><h4>Tools</h4><a href="#">Image Enhancer</a><a href="#">4K Upscaler</a><a href="#">8K Upscaler</a></div>
     </div>
-    <div class="container" style="text-align:center; margin-top:30px;">© 2025 PixelUp AI – All rights reserved. Dimensions preserved.</div>
+    <div class="container" style="text-align:center; margin-top:30px;">© 2025 PixelUp AI – All rights reserved.</div>
   </footer>
 
   <script>
@@ -433,15 +457,19 @@
       const downloadBtn = document.getElementById('downloadBtn');
       const enhanceBtn = document.getElementById('enhanceBtn');
       const chips = document.querySelectorAll('.chip');
+      const resBtns = document.querySelectorAll('.res-btn');
       const beforeDimensions = document.getElementById('beforeDimensions');
       const afterDimensions = document.getElementById('afterDimensions');
+      const dimensionDisplay = document.getElementById('dimensionDisplay');
 
       let originalFile = null;
       let originalDataUrl = null;
       let enhancedDataUrl = null;
       let currentTool = 'deblur';
+      let currentRes = '4k'; // default 4K
       let originalWidth = 0, originalHeight = 0;
 
+      // Tool chips
       chips.forEach(chip => {
         chip.addEventListener('click', function() {
           chips.forEach(c => c.classList.remove('active'));
@@ -450,6 +478,16 @@
         });
       });
 
+      // Resolution buttons (including original size)
+      resBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          resBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          currentRes = this.dataset.res;
+        });
+      });
+
+      // Drag & drop / file picker
       dragDrop.addEventListener('click', () => fileInput.click());
       dragDrop.addEventListener('dragover', (e) => e.preventDefault());
       dragDrop.addEventListener('drop', (e) => {
@@ -479,37 +517,61 @@
             downloadBtn.disabled = true;
             beforeDimensions.textContent = `Dimensions: ${originalWidth} x ${originalHeight}`;
             afterDimensions.textContent = '';
+            dimensionDisplay.innerHTML = `<i class="fas fa-arrows-alt" style="color:#2563eb;"></i> Original: ${originalWidth} x ${originalHeight}`;
           };
           img.src = originalDataUrl;
         };
         reader.readAsDataURL(file);
       }
 
-      // REAL QUALITY ENHANCEMENT - KEEPS EXACT DIMENSIONS
-      function enhanceImageQuality(originalDataUrl, tool) {
+      // ENHANCE + UPSCALE (if resolution selected, otherwise keep original size)
+      function processImage(originalDataUrl, tool, resolution) {
         return new Promise((resolve) => {
           const img = new Image();
           img.crossOrigin = 'Anonymous';
           img.onload = () => {
-            // Create canvas with EXACT original dimensions
             const canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
+            
+            // Determine output dimensions based on resolution selection
+            let targetWidth = img.width;
+            let targetHeight = img.height;
+            
+            if (resolution === 'hd') {
+              // Scale to at least 1280x720 proportionally
+              const scale = Math.max(1280 / img.width, 720 / img.height);
+              targetWidth = Math.round(img.width * scale);
+              targetHeight = Math.round(img.height * scale);
+            } else if (resolution === '4k') {
+              const scale = Math.max(3840 / img.width, 2160 / img.height);
+              targetWidth = Math.round(img.width * scale);
+              targetHeight = Math.round(img.height * scale);
+            } else if (resolution === '8k') {
+              const scale = Math.max(7680 / img.width, 4320 / img.height);
+              targetWidth = Math.round(img.width * scale);
+              targetHeight = Math.round(img.height * scale);
+            } else {
+              // original size - keep exactly the same dimensions
+              targetWidth = img.width;
+              targetHeight = img.height;
+            }
+            
+            canvas.width = targetWidth;
+            canvas.height = targetHeight;
             
             const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, img.width, img.height);
+            // Draw image scaled to new dimensions (or original)
+            ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
             
-            // Apply advanced sharpening and quality enhancement
+            // Apply quality enhancement (sharpening, deblur, etc.) to the entire image
             let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             let data = imageData.data;
             let width = canvas.width;
             let height = canvas.height;
             
-            // Create output array
             let output = new Uint8ClampedArray(data.length);
             output.set(data);
             
-            // Apply Laplacian sharpening kernel for detail enhancement
+            // Laplacian sharpening kernel for detail enhancement
             const kernel = [
               [0, -1, 0],
               [-1, 5, -1],
@@ -539,30 +601,25 @@
               }
             }
             
-            // Additional tool-specific quality adjustments (still keeping dimensions)
+            // Additional tool-specific quality adjustments
             for (let i = 0; i < output.length; i += 4) {
               if (tool === 'deblur' || tool === 'sharpen') {
-                // Enhance edges and clarity
                 output[i] = Math.min(255, output[i] * 1.15);
                 output[i+1] = Math.min(255, output[i+1] * 1.15);
                 output[i+2] = Math.min(255, output[i+2] * 1.15);
               } else if (tool === 'noise') {
-                // Noise reduction with slight smoothing
                 output[i] = output[i] * 0.92 + 12;
                 output[i+1] = output[i+1] * 0.92 + 12;
                 output[i+2] = output[i+2] * 0.92 + 12;
               } else if (tool === 'face') {
-                // Skin-aware enhancement
                 output[i] = Math.min(255, output[i] * 1.12);
                 output[i+1] = Math.min(255, output[i+1] * 1.08);
                 output[i+2] = Math.min(255, output[i+2] * 1.05);
               } else if (tool === 'restore') {
-                // Contrast and detail boost for old photos
                 output[i] = Math.min(255, output[i] * 1.25);
                 output[i+1] = Math.min(255, output[i+1] * 1.2);
                 output[i+2] = Math.min(255, output[i+2] * 1.15);
               } else if (tool === 'hdr') {
-                // Increase contrast and vibrance
                 let avg = (output[i] + output[i+1] + output[i+2]) / 3;
                 output[i] = Math.min(255, output[i] + (output[i] - avg) * 0.3);
                 output[i+1] = Math.min(255, output[i+1] + (output[i+1] - avg) * 0.3);
@@ -572,10 +629,11 @@
             
             ctx.putImageData(new ImageData(output, width, height), 0, 0);
             
-            // Add subtle indicator (optional, can be removed)
-            ctx.font = 'bold 14px Inter';
-            ctx.fillStyle = 'rgba(37,99,235,0.4)';
-            ctx.fillText('AI enhanced', 20, 40);
+            // Add subtle resolution label
+            ctx.font = 'bold 18px Inter';
+            ctx.fillStyle = 'rgba(37,99,235,0.5)';
+            let label = resolution === 'original' ? 'AI Enhanced' : `AI ${resolution.toUpperCase()}`;
+            ctx.fillText(label, 30, 50);
             
             resolve(canvas.toDataURL('image/png'));
           };
@@ -589,23 +647,27 @@
           return;
         }
 
-        enhanceBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Enhancing quality...';
+        enhanceBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Processing...';
         enhanceBtn.disabled = true;
 
         try {
-          enhancedDataUrl = await enhanceImageQuality(originalDataUrl, currentTool);
+          enhancedDataUrl = await processImage(originalDataUrl, currentTool, currentRes);
           afterImg.src = enhancedDataUrl;
           afterImg.style.display = 'inline';
           afterPlaceholder.style.display = 'none';
           downloadBtn.disabled = false;
           
-          // Show dimensions (should be identical)
-          afterDimensions.textContent = `Dimensions: ${originalWidth} x ${originalHeight} (unchanged)`;
+          // Show dimensions in after preview (need to load image to get dimensions)
+          const img = new Image();
+          img.onload = () => {
+            afterDimensions.textContent = `Dimensions: ${img.width} x ${img.height}`;
+          };
+          img.src = enhancedDataUrl;
         } catch (err) {
           alert('Enhancement failed.');
           console.error(err);
         } finally {
-          enhanceBtn.innerHTML = '<i class="fas fa-magic"></i> Enhance Quality (Keep Size)';
+          enhanceBtn.innerHTML = '<i class="fas fa-magic"></i> Enhance & Process';
           enhanceBtn.disabled = false;
         }
       });
@@ -613,13 +675,13 @@
       downloadBtn.addEventListener('click', function() {
         if (enhancedDataUrl) {
           const link = document.createElement('a');
-          link.download = `enhanced_${currentTool}.png`;
+          link.download = `enhanced_${currentTool}_${currentRes}.png`;
           link.href = enhancedDataUrl;
           link.click();
         }
       });
     })();
   </script>
-  <div style="text-align:center; padding:20px;">✅ Image dimensions are preserved exactly. Only quality (sharpness, blur, noise) is enhanced. AdSense units ready.</div>
+  <div style="text-align:center; padding:20px;">✅ Choose: HD / 4K / 8K upscaling OR keep original size. Quality (deblur, sharpen) always applied. AdSense ready.</div>
 </body>
 </html>
